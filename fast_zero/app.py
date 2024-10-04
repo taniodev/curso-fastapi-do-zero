@@ -3,7 +3,7 @@ from http import HTTPStatus
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
-from fast_zero.schemas import Message, UserDB, UserPublic, UserSchema
+from fast_zero.schemas import Message, UserDB, UserList, UserPublic, UserSchema
 
 app = FastAPI()
 database = []
@@ -28,3 +28,8 @@ def create_user(user: UserSchema):
     user_with_id = UserDB(**user.model_dump(), id=len(database) + 1)
     database.append(user_with_id)
     return user_with_id
+
+
+@app.get('/users/', response_model=UserList)
+def read_users():
+    return {'users': database}
