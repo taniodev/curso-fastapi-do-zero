@@ -58,6 +58,22 @@ def test_create_user_should_return_400_username_exists(client, user):
     }
 
 
+def test_create_user_should_return_400_email_exists(client, user):
+    response = client.post(
+        '/users/',
+        json={
+            'username': 'moranguinho',
+            'email': user.email,
+            'password': 'secret',
+        },
+    )
+
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+    assert response.json() == {
+        'detail': 'E-mail already exists',
+    }
+
+
 def test_read_users(client):
     response = client.get('/users')
     assert response.status_code == HTTPStatus.OK
