@@ -180,3 +180,15 @@ def test_sending_token_without_email_should_return_unauthorized(client):
 
     assert response.status_code == HTTPStatus.UNAUTHORIZED
     assert response.json() == {'detail': 'Could not validate credentials'}
+
+
+def test_get_current_user_does_not_exists(client):
+    data = {'sub': 'notfound@example.com'}
+    token = create_access_token(data)
+
+    response = client.delete(
+        '/users/1', headers={'Authorization': f'Bearer {token}'}
+    )
+
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+    assert response.json() == {'detail': 'Could not validate credentials'}
