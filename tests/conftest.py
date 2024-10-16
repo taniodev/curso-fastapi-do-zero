@@ -56,6 +56,15 @@ def user(session):
     return user
 
 
+@pytest.fixture
+def token(client, user):
+    response = client.post(
+        '/token',
+        data={'username': user.email, 'password': user.clean_password},
+    )
+    return response.json()['access_token']
+
+
 @contextmanager
 def _mock_db_time(*, model, time=datetime(2024, 1, 1)):
     def fake_time_hook(mapper, connection, target):
