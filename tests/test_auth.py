@@ -15,6 +15,26 @@ def test_get_access_token(client, user):
     assert 'token_type' in token
 
 
+def test_token_inexistent_user(client, user):
+    response = client.post(
+        '/auth/token',
+        data={'username': 'no_user@example.com', 'password': 'secret'},
+    )
+
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+    assert response.json() == {'detail': 'Incorrect e-mail or password'}
+
+
+def test_token_wrong_password(client, user):
+    response = client.post(
+        '/auth/token',
+        data={'username': user.email, 'password': 'wrong password'},
+    )
+
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+    assert response.json() == {'detail': 'Incorrect e-mail or password'}
+
+
 def test_token_expired_after_time(client, user):
     with freeze_time('2024-01-01 12:00:00'):
         response = client.post(
