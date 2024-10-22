@@ -146,3 +146,29 @@ def test_list_todos_filter_combined_should_return_5_todos(
     )
 
     assert len(response.json()['todos']) == expected_todos
+
+
+def test_patch_todo_error(client, token):
+    response = client.patch(
+        '/todos/15',
+        headers={'Authorization': f'Bearer {token}'},
+        json={},
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'Task not found.'}
+
+
+def test_patch_todo(session, client, user, token):
+    todo = TodoFactory(user_id=user.id)
+    session.add(todo)
+    session.commit()
+
+    response = client.patch(
+        f'/todos/{todo.id}',
+        headers={'Authorization': f'Bearer {token}'},
+        json={'title': 'my test'},
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json()['title'] == 'my test'
