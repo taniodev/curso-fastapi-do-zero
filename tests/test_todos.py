@@ -38,6 +38,31 @@ class TodoFactory(factory.Factory):
     user_id = 1
 
 
+def test_list_todos(session, client, user, token):
+    todo = TodoFactory.create(user_id=user.id)
+    session.add(todo)
+    session.commit()
+    session.refresh(todo)
+
+    response = client.get(
+        '/todos', headers={'Authorization': f'Bearer {token}'}
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {
+        'todos': [
+            {
+                'id': todo.id,
+                'title': todo.title,
+                'description': todo.description,
+                'state': todo.state,
+                'created_at': todo.created_at.isoformat(),
+                'updated_at': todo.updated_at.isoformat(),
+            }
+        ]
+    }
+
+
 def test_list_todos_should_return_5_todos(session, client, user, token):
     expected_todos = 5
     session.bulk_save_objects(TodoFactory.create_batch(5, user_id=user.id))
