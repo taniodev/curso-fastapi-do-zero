@@ -5,16 +5,17 @@ import factory.fuzzy
 from fast_zero.models import Todo, TodoState
 
 
-def test_create_todo(client, token):
-    response = client.post(
-        '/todos',
-        headers={'Authorization': f'Bearer {token}'},
-        json={
-            'title': 'my test todo',
-            'description': 'my test todo description',
-            'state': 'draft',
-        },
-    )
+def test_create_todo(client, token, mock_db_time):
+    with mock_db_time(model=Todo) as time:
+        response = client.post(
+            '/todos',
+            headers={'Authorization': f'Bearer {token}'},
+            json={
+                'title': 'my test todo',
+                'description': 'my test todo description',
+                'state': 'draft',
+            },
+        )
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
@@ -22,6 +23,8 @@ def test_create_todo(client, token):
         'title': 'my test todo',
         'description': 'my test todo description',
         'state': 'draft',
+        'created_at': time.isoformat(),
+        'updated_at': time.isoformat(),
     }
 
 
