@@ -1,0 +1,27 @@
+services:
+  fastzero_app:
+    build: .
+    entrypoint: ./entrypoint.sh
+    image: fastzero
+    container_name: fastzero_app
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+psycopg://app_user:app_password@fastzero_db/app_db
+    ports:
+      - 8000:8000
+    depends_on:
+      - fastzero_db
+
+  fastzero_db:
+    image: postgres:16.3-alpine3.20
+    container_name: fastzero_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: app_user
+      POSTGRES_DB: app_db
+      POSTGRES_PASSWORD: app_password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
